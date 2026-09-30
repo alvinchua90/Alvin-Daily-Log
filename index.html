@@ -692,6 +692,120 @@
   .cal-col.day-off .cal-note { opacity: 0.6; }
   .cal-note.carried { opacity: 0.72; border: 1px dashed rgba(0,0,0,0.35); }
   .cal-note.carried .cal-note-title::before { content: "\21BB  "; }
+
+  /* ---- Top-right "what's new" bubble ---- */
+  .upd-bubble { position: fixed; top: 0.8rem; right: 0.8rem; z-index: 40; width: 320px; max-width: calc(100vw - 1.6rem); display: none; }
+  .upd-bubble.collapsed { width: auto; }
+  .upd-fab {
+    display: flex; align-items: center; gap: 0.45rem; margin-left: auto;
+    background: var(--gold); color: var(--gold-ink); border: none;
+    border-radius: 999px; padding: 0.5rem 0.95rem; font-weight: 800; font-size: 0.8rem;
+    cursor: pointer; animation: unreadGlow 1.8s ease-in-out infinite;
+  }
+  .upd-panel {
+    margin-top: 0.5rem; background: var(--surface-raised);
+    border: 1px solid var(--gold); border-radius: 14px;
+    box-shadow: var(--shadow-2), 0 0 18px rgba(203,165,58,0.35);
+    max-height: 62vh; overflow-y: auto;
+  }
+  .upd-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 0.9rem; font-weight: 800; font-size: 0.85rem;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface-raised);
+  }
+  .upd-markall { background: none; border: none; color: var(--text-faint); font-size: 0.7rem; text-decoration: underline; cursor: pointer; }
+  .upd-markall:hover { color: var(--gold); }
+  .upd-item {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    border-bottom: 1px solid var(--line-soft); padding: 0.65rem 0.9rem; cursor: pointer; color: var(--text);
+  }
+  .upd-item:last-child { border-bottom: none; }
+  .upd-item:hover { background: var(--surface-hover); }
+  .upd-item-top { display: flex; align-items: center; gap: 0.5rem; }
+  .upd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .upd-item-title { font-weight: 700; font-size: 0.82rem; }
+  .upd-line { font-size: 0.74rem; color: var(--text-soft); margin: 0.2rem 0 0 1.05rem; line-height: 1.35; }
+  @media (prefers-reduced-motion: reduce) { .upd-fab { animation: none; } }
+
+  /* ---- Joseph assigns a task to Alvin ---- */
+  .assign-card {
+    margin: 0 0 1.2rem; padding: 1rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--gold); border-radius: 14px;
+  }
+  .assign-title { font-weight: 800; font-size: 0.95rem; }
+  .assign-sub { font-size: 0.74rem; color: var(--text-faint); margin: 0.2rem 0 0.7rem; }
+  .assign-card input[type="text"], .assign-card textarea, .assign-card select {
+    width: 100%; box-sizing: border-box; background: var(--surface-raised); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; padding: 0.55rem 0.7rem;
+    font: inherit; font-size: 0.86rem; margin-bottom: 0.5rem;
+  }
+  .assign-card textarea { min-height: 56px; resize: vertical; line-height: 1.5; }
+  .assign-foot { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; }
+  .assign-msg { font-size: 0.78rem; font-weight: 700; color: var(--st-done); }
+  .cal-note.from-jo { box-shadow: inset 3px 0 0 rgba(20,22,27,0.55); }
+  .cal-note.from-jo .cal-note-title::before { content: "JO \00B7  "; font-weight: 800; }
+  .cal-note.carried.from-jo .cal-note-title::before { content: "\21BB  JO \00B7  "; }
+
+  /* ---- Day activity panel ---- */
+  .cal-col-header:hover { opacity: 0.85; }
+  .day-activity {
+    margin-top: 1.4rem; padding: 1rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  }
+  .da-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .da-off { font-size: 0.8rem; font-weight: 700; color: var(--text-soft); margin-bottom: 0.5rem; }
+  .da-section { margin-bottom: 0.7rem; }
+  .da-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.25rem; }
+  .da-row {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    border-bottom: 1px solid var(--line-soft); padding: 0.5rem 0.2rem; cursor: pointer; color: var(--text);
+  }
+  .da-row:hover { background: var(--surface-hover); }
+  .da-row-title { font-weight: 700; font-size: 0.84rem; display: block; }
+  .da-row-sub { font-size: 0.75rem; color: var(--text-soft); display: block; margin-top: 0.15rem; }
+  .da-empty, .da-foot { font-size: 0.78rem; color: var(--text-faint); }
+  .da-foot { margin-top: 0.4rem; }
+
+  /* ---- Summary table ---- */
+  .upd-table-card {
+    margin: 0 0 1.4rem; padding: 1rem 1.1rem 0.9rem;
+    background: var(--surface); border: 1px solid var(--gold); border-radius: 14px;
+    box-shadow: 0 0 16px rgba(203,165,58,0.18);
+  }
+  .ut-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+  .ut-title { font-weight: 800; font-size: 1rem; }
+  .ut-ctl { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+  .ut-range {
+    background: var(--surface-raised); color: var(--text-soft); border: 1px solid var(--line);
+    border-radius: 999px; padding: 0.25rem 0.7rem; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  }
+  .ut-range.active { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+  .ut-mark { background: none; border: none; color: var(--text-faint); font-size: 0.72rem; text-decoration: underline; cursor: pointer; margin-left: 0.3rem; }
+  .ut-mark:hover { color: var(--gold); }
+  .ut-summary { margin: 0.55rem 0 0.7rem; font-size: 0.86rem; font-weight: 700; color: var(--gold); }
+  .ut-wrap { overflow-x: auto; max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .ut-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .ut-table th {
+    position: sticky; top: 0; background: var(--surface-raised); text-align: left;
+    font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint);
+    padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--line);
+  }
+  .ut-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  .ut-row { cursor: pointer; }
+  .ut-row:hover { background: var(--surface-hover); }
+  .ut-row.is-new { box-shadow: inset 3px 0 0 var(--gold); background: var(--gold-soft); }
+  .ut-when { white-space: nowrap; color: var(--text-soft); font-size: 0.74rem; }
+  .ut-task { font-weight: 700; min-width: 150px; }
+  .ut-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.45rem; }
+  .ut-by { white-space: nowrap; color: var(--text-soft); }
+  .ut-pill { display: inline-block; font-size: 0.66rem; font-weight: 800; padding: 0.1rem 0.55rem; border-radius: 999px; background: var(--surface-raised); border: 1px solid var(--line); }
+  .ut-newtask { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+  .ut-comment { background: #3b6fb6; color: #fff; border-color: #3b6fb6; }
+  .ut-completed { background: #3f8f5b; color: #fff; border-color: #3f8f5b; }
+  .ut-status, .ut-edited { background: #6b6f7a; color: #fff; border-color: #6b6f7a; }
+  .ut-newflag { margin-left: 0.4rem; font-size: 0.62rem; font-weight: 800; color: var(--gold); }
+  .ut-detail { margin-top: 0.25rem; color: var(--text-soft); line-height: 1.4; }
+  .ut-hint { margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-faint); }
 </style>
 </head>
 <body>
@@ -709,6 +823,7 @@
 
   <div id="banner-slot"></div>
   <div id="whoSlot"></div>
+  <div id="assignSlot"></div>
 
   <div class="overview">
     <div class="stat-count">
@@ -721,6 +836,7 @@
   <div class="mixbar" id="mixbar"></div>
   <div class="mixbar-legend" id="mixbarLegend"></div>
 
+  <div id="updatesSlot"></div>
   <div class="view-seg" id="viewSeg">
     <button data-view="board">Board</button>
     <button data-view="weekly" class="active">Weekly</button>
@@ -833,6 +949,7 @@
   var ui = { addOpen: {}, completedOpen: {}, editOpen: {} };
   var viewState = "weekly";
   var weekOffset = 0;
+  var selectedDayKey = null;
   var latestNames = {};
   var openModalTaskId = null;
 
@@ -887,57 +1004,103 @@
   }
 
   // ---- Unread tracking (per viewer, stored in this browser) ----
-  // A task glows if the OTHER person added it, commented on it, or (for
-  // non-owners) edited it since you last clicked it. Clears on click.
-  var SEEN_PREFIX = "daily-log-seen-v1-";
+  // A task glows ONLY when something changed since this person last opened it:
+  //  - Joseph: a new task, a new comment from Alvin, or an edit/status change.
+  //  - Alvin: a new comment from Joseph.
+  // First visit on a browser = everything already there counts as read.
+  var SEEN_PREFIX = "daily-log-seen-v2-";
   var BASE_TITLE = document.title || "Alvin's Daily Log";
   var tasksLoaded = false, commentsLoaded = false;
   var seenStore = null, seenStoreKey = null;
 
   function seenKey() { return SEEN_PREFIX + (role.viewerId || "anon"); }
-  function taskSig(t) {
-    return [t.title || "", t.description || "", t.status || "", t.category || ""].join("\u241F");
+  function othersComments(taskId) {
+    return commentsFor(taskId).filter(function (c) { return c.authorId !== role.viewerId; });
   }
-  function othersCommentCount(taskId) {
-    return commentsFor(taskId).filter(function (c) { return c.authorId !== role.viewerId; }).length;
+  function taskState(t) {
+    return { title: t.title || "", desc: t.description || "", status: t.status || "not", cc: othersComments(t.id).length };
   }
-  function taskState(t) { return { sig: taskSig(t), cc: othersCommentCount(t.id) }; }
   function saveSeen() {
     try { localStorage.setItem(seenStoreKey, JSON.stringify(seenStore)); } catch (e) {}
   }
   function ensureSeen() {
     var key = seenKey();
-    if (seenStoreKey !== key) {   // first call, or user switched role
+    if (seenStoreKey !== key) {
       seenStoreKey = key;
       seenStore = null;
       try { var raw = localStorage.getItem(key); if (raw) seenStore = JSON.parse(raw); } catch (e) {}
     }
-    if (!seenStore) seenStore = { t: {} };
+    if (!seenStore && tasksLoaded && commentsLoaded) {
+      seenStore = { t: {} };
+      tasks.forEach(function (t) { seenStore.t[t.id] = taskState(t); });
+      saveSeen();
+    }
   }
-  function isUnread(t) {
-    if (!seenStore) return false;
+  function snip(txt, n) { txt = (txt || "").replace(/\s+/g, " ").trim(); return txt.length > n ? txt.slice(0, n - 1) + "\u2026" : txt; }
+  function whoName(id) { return ROLE_NAMES[id] || "Someone"; }
+
+  // What changed on this task since it was last seen? -> { lines: [...], ts } or null
+  function changesFor(t) {
+    if (!seenStore) return null;
     var cur = taskState(t);
     var s = seenStore.t[t.id];
-    if (!s) return t.createdBy !== role.viewerId || cur.cc > 0;
-    if (cur.cc > s.cc) return true;
-    if (!role.isOwner && cur.sig !== s.sig) return true;
-    return false;
+    var lines = [], ts = 0, statusTxt = null, edited = false;
+    var oc = othersComments(t.id);
+
+    if (!s) {
+      if (t.createdBy === role.viewerId && !oc.length) return null;   // your own new task
+      if (t.createdBy !== role.viewerId) {
+        lines.push("New task" + (t.createdBy ? " from " + whoName(t.createdBy) : ""));
+        ts = t.createdAt || 0;
+      }
+      s = { title: cur.title, desc: cur.desc, status: cur.status, cc: 0 };
+    } else if (!role.isOwner) {
+      if (s.status !== cur.status) {
+        var a = STATUS_BY_ID[s.status], b = STATUS_BY_ID[cur.status];
+        statusTxt = (a ? a.label : s.status) + " \u2192 " + (b ? b.label : cur.status);
+        lines.push("Status: " + statusTxt);
+        ts = Math.max(ts, t.closedAt || 0);
+      }
+      if (s.title !== cur.title || s.desc !== cur.desc) { edited = true; lines.push("Task details edited"); }
+    }
+
+    if (cur.cc > s.cc) {
+      var fresh = oc.slice(s.cc);
+      fresh.slice(-2).forEach(function (c) {
+        lines.push(whoName(c.authorId) + ": \u201C" + snip(c.text, 80) + "\u201D");
+      });
+      if (fresh.length > 2) lines.push("+" + (fresh.length - 2) + " earlier comment" + (fresh.length - 2 > 1 ? "s" : ""));
+      ts = Math.max(ts, fresh[fresh.length - 1].createdAt || 0);
+    }
+    return lines.length ? { lines: lines, ts: ts || t.createdAt || 0, statusTxt: statusTxt, edited: edited } : null;
   }
+  function isUnread(t) { return !!changesFor(t); }
+
   function markSeen(taskId) {
     var t = tasks.get(taskId);
     if (!t || !seenStore) return;
     seenStore.t[taskId] = taskState(t);
+    seenStore.v = seenStore.v || {};
+    seenStore.v[taskId] = Date.now();
     saveSeen();
+    document.querySelectorAll('[data-task-id="' + taskId + '"]').forEach(function (el) { el.classList.remove("is-unread"); });
+    updateUnreadIndicators();
+  }
+  function markAllSeen() {
+    if (!seenStore) return;
+    tasks.forEach(function (t) { seenStore.t[t.id] = taskState(t); });
+    seenStore.lastRead = Date.now();
+    saveSeen();
+    document.querySelectorAll(".is-unread").forEach(function (el) { el.classList.remove("is-unread"); });
     updateUnreadIndicators();
   }
   function applyUnread(el, task) {
+    el.setAttribute("data-task-id", task.id);
     if (!isUnread(task)) return;
     el.classList.add("is-unread");
-    el.addEventListener("click", function () {
-      if (el.classList.contains("is-unread")) {
-        el.classList.remove("is-unread");
-        markSeen(task.id);
-      }
+    el.addEventListener("click", function (e) {
+      if (e.target.closest("button, input, textarea, a")) return;
+      openTaskModal(task.id);      // opens the full task + comments, and marks it read
     });
   }
   function unreadCount(catId, wantDone) {
@@ -957,15 +1120,246 @@
     chip.hidden = n === 0;
     return chip;
   }
+
+
+  // ---- Summary table above the calendar ----
+  var updRange = "7d";
+  function fmtWhen(ts) {
+    var d = new Date(ts), n = new Date();
+    var time = d.toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" });
+    var k = dayKey(d);
+    if (k === dayKey(n)) return "Today, " + time;
+    if (k === dayKey(new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1))) return "Yesterday, " + time;
+    return d.toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short" }) + ", " + time;
+  }
+  function collectUpdates(sinceTs) {
+    var out = [];
+    var lastRead = (seenStore && seenStore.lastRead) || 0;
+    function viewed(id) { return Math.max(lastRead, (seenStore && seenStore.v && seenStore.v[id]) || 0); }
+    tasks.forEach(function (t) {
+      var name = t.title || "Untitled task";
+      if (t.createdBy !== role.viewerId && (t.createdAt || 0) >= sinceTs) {
+        out.push({ ts: t.createdAt || 0, type: "New task", task: t, detail: snip(t.description, 100),
+                   by: whoName(t.createdBy || "alvin"), isNew: (t.createdAt || 0) > viewed(t.id) });
+      }
+      if (!role.isOwner && t.status === "done" && t.closedAt && t.closedAt >= sinceTs) {
+        out.push({ ts: t.closedAt, type: "Completed", task: t, detail: "Marked as completed",
+                   by: "Alvin", isNew: t.closedAt > viewed(t.id) });
+      }
+      var c = changesFor(t);
+      if (c && c.statusTxt && !(t.status === "done" && t.closedAt && t.closedAt >= sinceTs)) {
+        out.push({ ts: Infinity, type: "Status", task: t, detail: c.statusTxt, by: "Alvin", isNew: true });
+      }
+      if (c && c.edited) {
+        out.push({ ts: Infinity, type: "Edited", task: t, detail: "Task details edited", by: "Alvin", isNew: true });
+      }
+    });
+    comments.forEach(function (cm) {
+      var t = tasks.get(cm.taskId);
+      if (!t || cm.authorId === role.viewerId || (cm.createdAt || 0) < sinceTs) return;
+      out.push({ ts: cm.createdAt || 0, type: "Comment", task: t, detail: "\u201C" + snip(cm.text, 110) + "\u201D",
+                 by: whoName(cm.authorId), isNew: (cm.createdAt || 0) > viewed(t.id) });
+    });
+    out.sort(function (a, b) { return b.ts - a.ts; });
+    return out;
+  }
+  function renderUpdatesTable() {
+    var host = document.getElementById("updatesSlot");
+    if (!host) return;
+    host.innerHTML = "";
+    if (!tasksLoaded || !commentsLoaded) return;
+
+    var now = new Date();
+    var since = updRange === "today"
+      ? new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+      : Date.now() - 7 * 86400000;
+    var rows = collectUpdates(since);
+
+    var card = document.createElement("div");
+    card.className = "upd-table-card";
+    var head = document.createElement("div");
+    head.className = "ut-head";
+    var ttl = document.createElement("div");
+    ttl.className = "ut-title";
+    ttl.textContent = "What\u2019s been updated";
+    head.appendChild(ttl);
+    var ctl = document.createElement("div");
+    ctl.className = "ut-ctl";
+    [["today", "Today"], ["7d", "Last 7 days"]].forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "ut-range" + (updRange === o[0] ? " active" : "");
+      b.textContent = o[1];
+      b.addEventListener("click", function () { updRange = o[0]; renderUpdatesTable(); });
+      ctl.appendChild(b);
+    });
+    var mark = document.createElement("button");
+    mark.type = "button";
+    mark.className = "ut-mark";
+    mark.textContent = "Mark all read";
+    mark.addEventListener("click", markAllSeen);
+    ctl.appendChild(mark);
+    head.appendChild(ctl);
+    card.appendChild(head);
+
+    var counts = { "New task": 0, "Comment": 0, "Status": 0, "Completed": 0, "Edited": 0 };
+    rows.forEach(function (r) { counts[r.type]++; });
+    var bits = [];
+    if (counts["New task"]) bits.push(counts["New task"] + " new task" + (counts["New task"] > 1 ? "s" : ""));
+    if (counts["Comment"]) bits.push(counts["Comment"] + " comment" + (counts["Comment"] > 1 ? "s" : ""));
+    if (counts["Completed"]) bits.push(counts["Completed"] + " completed");
+    if (counts["Status"]) bits.push(counts["Status"] + " status change" + (counts["Status"] > 1 ? "s" : ""));
+    if (counts["Edited"]) bits.push(counts["Edited"] + " edited");
+    var sum = document.createElement("div");
+    sum.className = "ut-summary";
+    sum.textContent = bits.length ? bits.join("  \u00B7  ") : "Nothing new " + (updRange === "today" ? "today" : "in the last 7 days") + ".";
+    card.appendChild(sum);
+
+    if (rows.length) {
+      var wrap = document.createElement("div");
+      wrap.className = "ut-wrap";
+      var tbl = document.createElement("table");
+      tbl.className = "ut-table";
+      var thead = document.createElement("thead");
+      thead.innerHTML = "<tr><th>When</th><th>Task</th><th>Update</th><th>By</th></tr>";
+      tbl.appendChild(thead);
+      var tb = document.createElement("tbody");
+      rows.forEach(function (r) {
+        var tr = document.createElement("tr");
+        tr.className = "ut-row" + (r.isNew ? " is-new" : "");
+        var cat = CAT_BY_ID[r.task.category] || CATEGORIES[0];
+        var tdW = document.createElement("td");
+        tdW.className = "ut-when";
+        tdW.textContent = r.ts === Infinity ? "Since last visit" : fmtWhen(r.ts);
+        var tdT = document.createElement("td");
+        tdT.className = "ut-task";
+        var dot = document.createElement("span");
+        dot.className = "ut-dot";
+        dot.style.background = cat.color;
+        tdT.appendChild(dot);
+        tdT.appendChild(document.createTextNode(r.task.title || "Untitled task"));
+        var tdU = document.createElement("td");
+        var pill = document.createElement("span");
+        pill.className = "ut-pill ut-" + r.type.toLowerCase().replace(/\s+/g, "");
+        pill.textContent = r.type;
+        tdU.appendChild(pill);
+        if (r.isNew) {
+          var nw = document.createElement("span");
+          nw.className = "ut-newflag";
+          nw.textContent = "NEW";
+          tdU.appendChild(nw);
+        }
+        if (r.detail) {
+          var dt = document.createElement("div");
+          dt.className = "ut-detail";
+          dt.textContent = r.detail;
+          tdU.appendChild(dt);
+        }
+        var tdB = document.createElement("td");
+        tdB.className = "ut-by";
+        tdB.textContent = r.by;
+        tr.appendChild(tdW); tr.appendChild(tdT); tr.appendChild(tdU); tr.appendChild(tdB);
+        tr.addEventListener("click", function () { openTaskModal(r.task.id); });
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);
+      wrap.appendChild(tbl);
+      card.appendChild(wrap);
+      var hint = document.createElement("div");
+      hint.className = "ut-hint";
+      hint.textContent = "Click any row to open the task and see the full conversation.";
+      card.appendChild(hint);
+    }
+    host.appendChild(card);
+  }
+
+  // ---- Top-right "what's new" bubble ----
+  var bubbleCollapsed = false;
+  try { bubbleCollapsed = sessionStorage.getItem("daily-log-bubble-collapsed") === "1"; } catch (e) {}
+  function getBubble() {
+    var b = document.getElementById("updBubble");
+    if (b) return b;
+    b = document.createElement("div");
+    b.id = "updBubble";
+    b.className = "upd-bubble";
+    document.body.appendChild(b);
+    return b;
+  }
+  function renderBubble(items) {
+    var b = getBubble();
+    b.innerHTML = "";
+    if (!items.length) { b.style.display = "none"; return; }
+    b.style.display = "block";
+
+    var fab = document.createElement("button");
+    fab.type = "button";
+    fab.className = "upd-fab";
+    fab.innerHTML = '<span class="upd-bell">\uD83D\uDD14</span><span class="upd-fab-text"></span>';
+    fab.querySelector(".upd-fab-text").textContent = items.length + (items.length === 1 ? " update" : " updates");
+    fab.addEventListener("click", function () {
+      bubbleCollapsed = !bubbleCollapsed;
+      try { sessionStorage.setItem("daily-log-bubble-collapsed", bubbleCollapsed ? "1" : "0"); } catch (e) {}
+      renderBubble(items);
+    });
+    b.appendChild(fab);
+    if (bubbleCollapsed) { b.classList.add("collapsed"); return; }
+    b.classList.remove("collapsed");
+
+    var panel = document.createElement("div");
+    panel.className = "upd-panel";
+    var head = document.createElement("div");
+    head.className = "upd-head";
+    var ttl = document.createElement("span");
+    ttl.textContent = "What\u2019s new";
+    var all = document.createElement("button");
+    all.type = "button";
+    all.className = "upd-markall";
+    all.textContent = "Mark all read";
+    all.addEventListener("click", markAllSeen);
+    head.appendChild(ttl); head.appendChild(all);
+    panel.appendChild(head);
+
+    items.forEach(function (it) {
+      var cat = CAT_BY_ID[it.task.category] || CATEGORIES[0];
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "upd-item";
+      var top = document.createElement("div");
+      top.className = "upd-item-top";
+      var dot = document.createElement("span");
+      dot.className = "upd-dot";
+      dot.style.background = cat.color;
+      var name = document.createElement("span");
+      name.className = "upd-item-title";
+      name.textContent = it.task.title || "Untitled task";
+      top.appendChild(dot); top.appendChild(name);
+      row.appendChild(top);
+      it.lines.forEach(function (ln) {
+        var l = document.createElement("div");
+        l.className = "upd-line";
+        l.textContent = ln;
+        row.appendChild(l);
+      });
+      row.addEventListener("click", function () { openTaskModal(it.task.id); });
+      panel.appendChild(row);
+    });
+    b.appendChild(panel);
+  }
   function updateUnreadIndicators() {
     document.querySelectorAll(".unread-chip").forEach(function (chip) {
       var n = unreadCount(chip.getAttribute("data-cat"), chip.getAttribute("data-done") === "1");
       chip.textContent = n + " new";
       chip.hidden = n === 0;
     });
-    var total = 0;
-    tasks.forEach(function (t) { if (isUnread(t)) total++; });
-    document.title = (total ? "(" + total + ") " : "") + BASE_TITLE;
+    var items = [];
+    tasks.forEach(function (t) {
+      var c = changesFor(t);
+      if (c) items.push({ task: t, lines: c.lines, ts: c.ts });
+    });
+    items.sort(function (a, b) { return b.ts - a.ts; });
+    document.title = (items.length ? "(" + items.length + ") " : "") + BASE_TITLE;
+    renderBubble(items);
+    renderUpdatesTable();
   }
 
   var store = {
@@ -1159,7 +1553,7 @@
 
   async function init() {
     document.getElementById("subdate").textContent =
-      new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + "  \u00B7  glow v3";
+      new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + "  \u00B7  glow v7";
 
     var db = null, user = null;
     try {
@@ -1542,7 +1936,68 @@
     });
   }
 
+  // ---- Joseph: assign a new task to Alvin ----
+  function renderAssign() {
+    var host = document.getElementById("assignSlot");
+    if (!host) return;
+    host.innerHTML = "";
+    if (role.isOwner || !role.canWrite) return;
+
+    var card = document.createElement("div");
+    card.className = "assign-card";
+    var h = document.createElement("div");
+    h.className = "assign-title";
+    h.textContent = "Assign a new task to Alvin";
+    var sub = document.createElement("div");
+    sub.className = "assign-sub";
+    sub.textContent = "It lands on Alvin\u2019s board straight away and he\u2019ll see it flagged as new.";
+
+    var titleIn = document.createElement("input");
+    titleIn.type = "text";
+    titleIn.placeholder = "What do you need Alvin to do?";
+    var row = document.createElement("div");
+    row.className = "assign-row";
+    var sel = document.createElement("select");
+    CATEGORIES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.id; o.textContent = c.label;
+      if (c.id === "adhoc") o.selected = true;
+      sel.appendChild(o);
+    });
+    row.appendChild(sel);
+    var desc = document.createElement("textarea");
+    desc.placeholder = "Add detail, deadline or context (optional)";
+
+    var foot = document.createElement("div");
+    foot.className = "assign-foot";
+    var msg = document.createElement("span");
+    msg.className = "assign-msg";
+    var send = document.createElement("button");
+    send.type = "button";
+    send.className = "btn-primary";
+    send.textContent = "Send to Alvin";
+    function submit() {
+      var title = titleIn.value.trim();
+      if (!title) { titleIn.focus(); return; }
+      store.addTask({
+        title: title, category: sel.value, description: desc.value.trim(),
+        status: "not", createdAt: Date.now(), closedAt: null, createdBy: role.viewerId
+      });
+      titleIn.value = ""; desc.value = "";
+      msg.textContent = "Sent to Alvin \u2713";
+      setTimeout(function () { msg.textContent = ""; }, 3000);
+    }
+    send.addEventListener("click", submit);
+    titleIn.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+    foot.appendChild(msg); foot.appendChild(send);
+
+    card.appendChild(h); card.appendChild(sub); card.appendChild(titleIn);
+    card.appendChild(row); card.appendChild(desc); card.appendChild(foot);
+    host.appendChild(card);
+  }
+
   function renderWho() {
+    renderAssign();
     var el = document.getElementById("whoSlot");
     el.innerHTML = "";
     if (storageKind !== "claude") {
@@ -1699,7 +2154,7 @@
       titleEl.textContent = task.title || "Untitled task";
       var meta = document.createElement("span");
       meta.className = "task-meta";
-      meta.textContent = fmtOpened(task.createdAt);
+      meta.textContent = fmtOpened(task.createdAt) + (task.createdBy && task.createdBy !== "alvin" ? " \u00B7 from " + (ROLE_NAMES[task.createdBy] || "Joseph") : "");
       top.appendChild(titleEl);
       top.appendChild(meta);
       row.appendChild(top);
@@ -1917,9 +2372,6 @@
     if (!task) return;
     openModalTaskId = taskId;
     markSeen(taskId);
-    document.querySelectorAll(".cal-note.is-unread").forEach(function (n) {
-      if (n.title === (task.title || "Untitled task")) n.classList.remove("is-unread");
-    });
     var root = document.getElementById("modalRoot");
     root.innerHTML = "";
     var overlay = document.createElement("div");
@@ -1951,6 +2403,8 @@
     tile.style.background = cat.color;
     tile.title = task.title || "Untitled task";
         tile.addEventListener("click", function () { openTaskModal(task.id); });
+    tile.setAttribute("data-task-id", task.id);
+    if (task.createdBy && task.createdBy !== "alvin") tile.classList.add("from-jo");
     if (isUnread(task)) tile.classList.add("is-unread");
     var dot = document.createElement("span");
     dot.className = "cal-note-dot";
@@ -2060,7 +2514,10 @@
       dnum.textContent = bucket.date.getDate();
       header.appendChild(dow);
       header.appendChild(dnum);
-            col.appendChild(header);
+      header.style.cursor = "pointer";
+      header.title = "See this day\u2019s activity";
+      header.addEventListener("click", function () { selectedDayKey = bucket.key; render(); });
+      col.appendChild(header);
       var ctl = document.createElement("div");
       ctl.className = "cal-day-ctl";
       if (bucket.status.off) {
@@ -2095,6 +2552,85 @@
 
     scrollWrap.appendChild(grid);
     host.appendChild(scrollWrap);
+
+    // ---- Day activity panel ----
+    var keys = dayBuckets.map(function (b) { return b.key; });
+    var selKey = keys.indexOf(selectedDayKey) >= 0 ? selectedDayKey : (keys.indexOf(todayK) >= 0 ? todayK : keys[0]);
+    var sel = dayBuckets[keys.indexOf(selKey)];
+    host.appendChild(buildDayActivity(sel, all, todayK));
+  }
+
+  function buildDayActivity(bucket, all, todayK) {
+    var box = document.createElement("div");
+    box.className = "day-activity";
+    var h = document.createElement("div");
+    h.className = "da-title";
+    h.textContent = "Activity \u00B7 " + bucket.date.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "short" });
+    box.appendChild(h);
+    if (bucket.status.off) {
+      var off = document.createElement("div");
+      off.className = "da-off";
+      off.textContent = "Day off \u2014 " + bucket.status.reason;
+      box.appendChild(off);
+    }
+    function dk(ts) { return dayKey(new Date(ts || Date.now())); }
+    function section(label, rows) {
+      if (!rows.length) return;
+      var sec = document.createElement("div");
+      sec.className = "da-section";
+      var lb = document.createElement("div");
+      lb.className = "da-label";
+      lb.textContent = label + " (" + rows.length + ")";
+      sec.appendChild(lb);
+      rows.forEach(function (r) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "da-row";
+        var t = document.createElement("span");
+        t.className = "da-row-title";
+        t.textContent = r.title;
+        b.appendChild(t);
+        if (r.sub) {
+          var sb = document.createElement("span");
+          sb.className = "da-row-sub";
+          sb.textContent = r.sub;
+          b.appendChild(sb);
+        }
+        b.addEventListener("click", function () { openTaskModal(r.id); });
+        sec.appendChild(b);
+      });
+      box.appendChild(sec);
+    }
+    var added = [], done = [], talk = [], open = 0;
+    all.forEach(function (t) {
+      var name = t.title || "Untitled task";
+      if (dk(t.createdAt) === bucket.key) added.push({ id: t.id, title: name, sub: "by " + (ROLE_NAMES[t.createdBy] || "Alvin") });
+      if (t.status === "done" && t.closedAt && dk(t.closedAt) === bucket.key) done.push({ id: t.id, title: name, sub: "" });
+      if (t.status !== "done" && dk(t.createdAt) <= bucket.key && bucket.key <= todayK) open++;
+    });
+    comments.forEach(function (c) {
+      if (dk(c.createdAt) !== bucket.key) return;
+      var t = tasks.get(c.taskId);
+      if (!t) return;
+      talk.push({ id: t.id, title: t.title || "Untitled task", sub: (ROLE_NAMES[c.authorId] || "Someone") + ": \u201C" + snip(c.text, 90) + "\u201D", ts: c.createdAt || 0 });
+    });
+    talk.sort(function (a, b) { return a.ts - b.ts; });
+    section("Tasks added", added);
+    section("Completed", done);
+    section("Comments & updates", talk);
+    if (!added.length && !done.length && !talk.length) {
+      var none = document.createElement("div");
+      none.className = "da-empty";
+      none.textContent = bucket.status.off ? "Nothing logged." : "No new activity logged on this day.";
+      box.appendChild(none);
+    }
+    if (open && !bucket.status.off) {
+      var ft = document.createElement("div");
+      ft.className = "da-foot";
+      ft.textContent = open + " task" + (open > 1 ? "s" : "") + " still open on this day";
+      box.appendChild(ft);
+    }
+    return box;
   }
 
   function buildAddForm(catId) {
