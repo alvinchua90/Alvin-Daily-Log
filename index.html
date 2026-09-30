@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --ink: #14161B;
@@ -86,6 +87,27 @@
     color: var(--text-faint);
     letter-spacing: 0.02em;
     margin-bottom: 0.1rem;
+  }
+
+  #backupSlot { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+  .backup-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text-soft);
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .backup-btn:hover { color: var(--text); border-color: var(--text-faint); }
+  .drive-status {
+    font-size: 0.74rem;
+    color: var(--text-faint);
+    white-space: nowrap;
   }
 
   h1.title {
@@ -597,6 +619,79 @@
     .overview { align-items: flex-start; }
     .stat-sub { text-align: left; }
   }
+
+  /* ---- Unread / "new update" glow ---- */
+  .task-row, .completed-row { position: relative; }
+  .task-row.is-unread, .completed-row.is-unread {
+    background: var(--gold-soft);
+    margin: 0 -0.9rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+    border-radius: 10px;
+    border-bottom-color: transparent;
+    cursor: pointer;
+    animation: unreadGlow 1.8s ease-in-out infinite;
+  }
+  .task-row.is-unread::before, .completed-row.is-unread::before {
+    content: "";
+    position: absolute;
+    left: 0.28rem; top: 1.2rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 8px 2px var(--gold);
+    animation: unreadDot 1.8s ease-in-out infinite;
+  }
+  .cal-note.is-unread {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+    animation: unreadGlow 1.8s ease-in-out infinite;
+  }
+  .unread-chip {
+    margin-left: 0.5rem;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    background: var(--gold);
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    animation: unreadGlow 1.8s ease-in-out infinite;
+  }
+  .unread-chip[hidden] { display: none; }
+  @keyframes unreadGlow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(203,165,58,0.35), 0 0 6px 0 rgba(203,165,58,0.25); }
+    50%      { box-shadow: 0 0 0 1px rgba(203,165,58,0.95), 0 0 20px 4px rgba(203,165,58,0.6); }
+  }
+  @keyframes unreadDot {
+    0%, 100% { opacity: 0.55; transform: scale(0.9); }
+    50%      { opacity: 1;    transform: scale(1.25); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .task-row.is-unread, .completed-row.is-unread, .cal-note.is-unread, .unread-chip,
+    .task-row.is-unread::before, .completed-row.is-unread::before { animation: none; }
+  }
+
+  /* ---- Weekly calendar: day off + carried-over tasks ---- */
+  .cal-day-ctl { min-height: 1.6rem; text-align: center; margin: -0.2rem 0 0.5rem; }
+  .cal-off-reason {
+    display: inline-block; font-size: 0.66rem; font-weight: 700;
+    color: var(--text-soft); background: var(--surface-raised);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.1rem 0.5rem; margin-bottom: 0.25rem; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cal-off-btn {
+    display: block; margin: 0 auto; background: none; border: none;
+    font-size: 0.64rem; color: var(--text-faint);
+    text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+  }
+  .cal-off-btn:hover { color: var(--gold); }
+  .cal-col.day-off .cal-col-header { opacity: 0.55; border-bottom-style: dashed; }
+  .cal-col.day-off .cal-note { opacity: 0.6; }
+  .cal-note.carried { opacity: 0.72; border: 1px dashed rgba(0,0,0,0.35); }
+  .cal-note.carried .cal-note-title::before { content: "\21BB  "; }
 </style>
 </head>
 <body>
@@ -608,6 +703,7 @@
       <div class="kicker">1-Group · Business Development &amp; Sales</div>
       <h1 class="title">Alvin's Daily Log</h1>
     </div>
+    <div id="backupSlot"></div>
   </header>
   <div class="subdate" id="subdate"></div>
 
@@ -626,8 +722,8 @@
   <div class="mixbar-legend" id="mixbarLegend"></div>
 
   <div class="view-seg" id="viewSeg">
-    <button data-view="board" class="active">Board</button>
-    <button data-view="weekly">Weekly</button>
+    <button data-view="board">Board</button>
+    <button data-view="weekly" class="active">Weekly</button>
   </div>
 
   <div id="sections"></div>
@@ -646,6 +742,21 @@
   var SUPABASE_URL = "https://vytqnayywxrzqdyydeoe.supabase.co";
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dHFuYXl5d3hyenFkeXlkZW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNjk0MjgsImV4cCI6MjEwNTc0NTQyOH0.wrL5MPLcAD5YgbJtz3di7lVG_vhMxS3Xkmm1ziVgcKc";
   var SUPABASE_CONFIGURED = SUPABASE_URL.indexOf("PASTE_") !== 0 && SUPABASE_ANON_KEY.indexOf("PASTE_") !== 0;
+
+  // ---- Google Drive backup config ----
+  // Paste your OAuth Client ID from Google Cloud Console → APIs & Services
+  // → Credentials. Leave as-is to hide the Drive connect option.
+  // Note: this only works on a real published site (e.g. GitHub Pages),
+  // not inside the claude.ai preview, since Google blocks its login
+  // flow inside sandboxed iframes.
+  var GOOGLE_CLIENT_ID = "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE";
+  var GOOGLE_DRIVE_CONFIGURED = GOOGLE_CLIENT_ID.indexOf("PASTE_") !== 0;
+  var DRIVE_BACKUP_FILENAME = "alvin-daily-log-backup.json";
+  var DRIVE_FILE_ID_KEY = "daily-log-drive-file-id";
+  // This is the file Claude already created in Alvin's Drive — the app
+  // will update this exact file rather than searching for or creating a new one.
+  var DEFAULT_DRIVE_FILE_ID = "10grb3XStBbCRs-FfG4x4u8cD8IjwAPB_";
+  var DRIVE_CONNECTED_KEY = "daily-log-drive-connected";
 
   var LOCAL_ROLE_KEY = "daily-log-viewer-role";
   var ROLE_NAMES = { alvin: "Alvin", joseph: "Joseph" };
@@ -720,10 +831,142 @@
   var offline = false;
   var storageKind = "claude";
   var ui = { addOpen: {}, completedOpen: {}, editOpen: {} };
-  var viewState = "board";
+  var viewState = "weekly";
   var weekOffset = 0;
   var latestNames = {};
   var openModalTaskId = null;
+
+  // ---- Day off (weekend / leave) ----
+  // Saved as special rows (category "_dayoff") in the same tasks table, so it
+  // syncs to Joseph with no database change. Also mirrored in this browser.
+  var DAYOFF_LOCAL_KEY = "daily-log-dayoffs-v1";
+  var dayOffs = {};
+  function loadLocalDayOffs() {
+    try { return JSON.parse(localStorage.getItem(DAYOFF_LOCAL_KEY) || "{}"); } catch (e) { return {}; }
+  }
+  function saveLocalDayOffs(o) {
+    try { localStorage.setItem(DAYOFF_LOCAL_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function splitDayOffs(list) {
+    var real = [], remote = {};
+    list.forEach(function (t) {
+      if (t.category === "_dayoff") {
+        var info = {};
+        try { info = JSON.parse(t.description || "{}"); } catch (e) {}
+        remote[t.title] = { id: t.id, off: info.off !== false, reason: info.reason || "" };
+      } else { real.push(t); }
+    });
+    var local = loadLocalDayOffs();
+    Object.keys(local).forEach(function (k) { if (!remote[k]) remote[k] = { id: null, off: local[k].off, reason: local[k].reason || "" }; });
+    dayOffs = remote;
+    return real;
+  }
+  function dayStatus(key, dateObj) {
+    var rec = dayOffs[key];
+    var weekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+    if (rec) return { off: !!rec.off, reason: rec.off ? (rec.reason || (weekend ? "Weekend" : "Day off")) : "", weekend: weekend };
+    return { off: weekend, reason: weekend ? "Weekend" : "", weekend: weekend };
+  }
+  function setDayOff(key, off, reason, weekend) {
+    var rec = dayOffs[key];
+    var local = loadLocalDayOffs();
+    var needRecord = off || weekend;   // turning a normal weekday back on = delete the record
+    if (needRecord) {
+      var payload = JSON.stringify({ off: off, reason: reason || "" });
+      dayOffs[key] = { id: rec ? rec.id : null, off: off, reason: reason || "" };
+      local[key] = { off: off, reason: reason || "" };
+      if (rec && rec.id) store.updateTask(rec.id, { description: payload });
+      else store.addTask({ title: key, category: "_dayoff", description: payload, status: "not", createdAt: Date.now(), closedAt: null, createdBy: role.viewerId });
+    } else {
+      delete dayOffs[key];
+      delete local[key];
+      if (rec && rec.id) store.removeTask(rec.id);
+    }
+    saveLocalDayOffs(local);
+    render();
+  }
+
+  // ---- Unread tracking (per viewer, stored in this browser) ----
+  // A task glows if the OTHER person added it, commented on it, or (for
+  // non-owners) edited it since you last clicked it. Clears on click.
+  var SEEN_PREFIX = "daily-log-seen-v1-";
+  var BASE_TITLE = document.title || "Alvin's Daily Log";
+  var tasksLoaded = false, commentsLoaded = false;
+  var seenStore = null, seenStoreKey = null;
+
+  function seenKey() { return SEEN_PREFIX + (role.viewerId || "anon"); }
+  function taskSig(t) {
+    return [t.title || "", t.description || "", t.status || "", t.category || ""].join("\u241F");
+  }
+  function othersCommentCount(taskId) {
+    return commentsFor(taskId).filter(function (c) { return c.authorId !== role.viewerId; }).length;
+  }
+  function taskState(t) { return { sig: taskSig(t), cc: othersCommentCount(t.id) }; }
+  function saveSeen() {
+    try { localStorage.setItem(seenStoreKey, JSON.stringify(seenStore)); } catch (e) {}
+  }
+  function ensureSeen() {
+    var key = seenKey();
+    if (seenStoreKey !== key) {   // first call, or user switched role
+      seenStoreKey = key;
+      seenStore = null;
+      try { var raw = localStorage.getItem(key); if (raw) seenStore = JSON.parse(raw); } catch (e) {}
+    }
+    if (!seenStore) seenStore = { t: {} };
+  }
+  function isUnread(t) {
+    if (!seenStore) return false;
+    var cur = taskState(t);
+    var s = seenStore.t[t.id];
+    if (!s) return t.createdBy !== role.viewerId || cur.cc > 0;
+    if (cur.cc > s.cc) return true;
+    if (!role.isOwner && cur.sig !== s.sig) return true;
+    return false;
+  }
+  function markSeen(taskId) {
+    var t = tasks.get(taskId);
+    if (!t || !seenStore) return;
+    seenStore.t[taskId] = taskState(t);
+    saveSeen();
+    updateUnreadIndicators();
+  }
+  function applyUnread(el, task) {
+    if (!isUnread(task)) return;
+    el.classList.add("is-unread");
+    el.addEventListener("click", function () {
+      if (el.classList.contains("is-unread")) {
+        el.classList.remove("is-unread");
+        markSeen(task.id);
+      }
+    });
+  }
+  function unreadCount(catId, wantDone) {
+    var n = 0;
+    tasks.forEach(function (t) {
+      if ((!catId || t.category === catId) && ((t.status === "done") === !!wantDone) && isUnread(t)) n++;
+    });
+    return n;
+  }
+  function makeUnreadChip(catId, wantDone) {
+    var chip = document.createElement("span");
+    chip.className = "unread-chip";
+    chip.setAttribute("data-cat", catId);
+    chip.setAttribute("data-done", wantDone ? "1" : "0");
+    var n = unreadCount(catId, wantDone);
+    chip.textContent = n + " new";
+    chip.hidden = n === 0;
+    return chip;
+  }
+  function updateUnreadIndicators() {
+    document.querySelectorAll(".unread-chip").forEach(function (chip) {
+      var n = unreadCount(chip.getAttribute("data-cat"), chip.getAttribute("data-done") === "1");
+      chip.textContent = n + " new";
+      chip.hidden = n === 0;
+    });
+    var total = 0;
+    tasks.forEach(function (t) { if (isUnread(t)) total++; });
+    document.title = (total ? "(" + total + ") " : "") + BASE_TITLE;
+  }
 
   var store = {
     onTasks: function () {}, onComments: function () {}, addTask: function () {},
@@ -916,7 +1159,7 @@
 
   async function init() {
     document.getElementById("subdate").textContent =
-      new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + "  \u00B7  glow v3";
 
     var db = null, user = null;
     try {
@@ -968,12 +1211,324 @@
   }
 
   function finishInit() {
-    store.onTasks(function (list) { tasks = new Map(list.map(function (t) { return [t.id, t]; })); render(); });
-    store.onComments(function (list) { comments = new Map(list.map(function (c) { return [c.id, c]; })); render(); });
+    store.onTasks(function (list) { tasksLoaded = true; list = splitDayOffs(list); tasks = new Map(list.map(function (t) { return [t.id, t]; })); render(); scheduleDriveSync(); scheduleLocalSync(); });
+    store.onComments(function (list) { commentsLoaded = true; comments = new Map(list.map(function (c) { return [c.id, c]; })); render(); scheduleDriveSync(); scheduleLocalSync(); });
 
     renderWho();
+    renderBackupButton();
+    if (role.isOwner && GOOGLE_DRIVE_CONFIGURED) waitForGoogleIdentity(0);
+    if (role.isOwner) initLocalFileSync();
     bindViewToggle();
     render();
+  }
+
+  function renderBackupButton() {
+    var slot = document.getElementById("backupSlot");
+    slot.innerHTML = "";
+    if (!role.isOwner) return;
+
+    var dlBtn = document.createElement("button");
+    dlBtn.className = "backup-btn";
+    dlBtn.type = "button";
+    dlBtn.textContent = "\u2B07 Backup";
+    dlBtn.addEventListener("click", downloadBackup);
+    slot.appendChild(dlBtn);
+
+    if (fsSyncState.supported) {
+      if (fsSyncState.connected) {
+        var lStatus = document.createElement("span");
+        lStatus.className = "drive-status";
+        lStatus.textContent = fsSyncState.lastSyncAt
+          ? "File sync \u00b7 saved " + fmtTime(fsSyncState.lastSyncAt)
+          : "File sync \u00b7 connected";
+        slot.appendChild(lStatus);
+      } else if (fsSyncState.needsResume) {
+        var resumeBtn = document.createElement("button");
+        resumeBtn.className = "backup-btn";
+        resumeBtn.type = "button";
+        resumeBtn.textContent = "Resume file sync";
+        resumeBtn.addEventListener("click", resumeLocalFileSync);
+        slot.appendChild(resumeBtn);
+      } else {
+        var connectFileBtn = document.createElement("button");
+        connectFileBtn.className = "backup-btn";
+        connectFileBtn.type = "button";
+        connectFileBtn.textContent = "Connect backup file";
+        connectFileBtn.addEventListener("click", connectLocalFileSync);
+        slot.appendChild(connectFileBtn);
+      }
+    }
+
+    if (GOOGLE_DRIVE_CONFIGURED && driveState.ready) {
+      if (driveState.connected) {
+        var status = document.createElement("span");
+        status.className = "drive-status";
+        status.textContent = driveState.lastSyncAt
+          ? "Drive \u00b7 synced " + fmtTime(driveState.lastSyncAt)
+          : "Drive \u00b7 connected";
+        slot.appendChild(status);
+      } else {
+        var connectBtn = document.createElement("button");
+        connectBtn.className = "backup-btn";
+        connectBtn.type = "button";
+        connectBtn.textContent = "Connect Google Drive";
+        connectBtn.addEventListener("click", connectGoogleDrive);
+        slot.appendChild(connectBtn);
+      }
+    }
+  }
+
+  function downloadBackup() {
+    var payload = buildBackupPayload();
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "alvin-daily-log-backup-" + todayKey() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // ---- Local file sync (File System Access API) ----
+  // Writes the backup directly into a file the user picks once — e.g. a
+  // file inside their Google Drive desktop folder — so Drive's own sync
+  // picks up every update automatically. No Google login required.
+
+  var fsSyncState = {
+    supported: "showSaveFilePicker" in window,
+    handle: null,
+    connected: false,
+    needsResume: false,
+    lastSyncAt: null,
+    syncTimer: null
+  };
+
+  function openHandleDB() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open("daily-log-fs", 1);
+      req.onupgradeneeded = function () { req.result.createObjectStore("handles"); };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+  function saveHandleToDB(handle) {
+    return openHandleDB().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction("handles", "readwrite");
+        tx.objectStore("handles").put(handle, "backupFile");
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+  function loadHandleFromDB() {
+    return openHandleDB().then(function (db) {
+      return new Promise(function (resolve) {
+        var tx = db.transaction("handles", "readonly");
+        var req = tx.objectStore("handles").get("backupFile");
+        req.onsuccess = function () { resolve(req.result || null); };
+        req.onerror = function () { resolve(null); };
+      });
+    });
+  }
+
+  function initLocalFileSync() {
+    if (!fsSyncState.supported) { renderBackupButton(); return; }
+    loadHandleFromDB().then(function (handle) {
+      if (!handle) { renderBackupButton(); return; }
+      fsSyncState.handle = handle;
+      handle.queryPermission({ mode: "readwrite" }).then(function (perm) {
+        if (perm === "granted") {
+          fsSyncState.connected = true;
+          fsSyncState.needsResume = false;
+        } else {
+          fsSyncState.connected = false;
+          fsSyncState.needsResume = true;
+        }
+        renderBackupButton();
+      }).catch(function () { renderBackupButton(); });
+    });
+  }
+
+  function connectLocalFileSync() {
+    if (!fsSyncState.supported) return;
+    window.showSaveFilePicker({
+      suggestedName: "alvin-daily-log-backup.json",
+      types: [{ description: "JSON backup", accept: { "application/json": [".json"] } }]
+    }).then(function (handle) {
+      fsSyncState.handle = handle;
+      fsSyncState.connected = true;
+      fsSyncState.needsResume = false;
+      saveHandleToDB(handle).catch(function (err) { console.warn("failed to persist file handle", err); });
+      writeToLocalFile();
+    }).catch(function (err) {
+      if (err && err.name !== "AbortError") console.warn("file picker failed", err);
+    });
+  }
+
+  function resumeLocalFileSync() {
+    if (!fsSyncState.handle) return;
+    fsSyncState.handle.requestPermission({ mode: "readwrite" }).then(function (perm) {
+      if (perm === "granted") {
+        fsSyncState.connected = true;
+        fsSyncState.needsResume = false;
+        renderBackupButton();
+        writeToLocalFile();
+      }
+    }).catch(function (err) { console.warn("permission request failed", err); });
+  }
+
+  function writeToLocalFile() {
+    if (!fsSyncState.handle || !fsSyncState.connected) return;
+    fsSyncState.handle.createWritable().then(function (writable) {
+      return writable.write(JSON.stringify(buildBackupPayload(), null, 2)).then(function () {
+        return writable.close();
+      });
+    }).then(function () {
+      fsSyncState.lastSyncAt = Date.now();
+      renderBackupButton();
+    }).catch(function (err) {
+      console.warn("local file write failed", err);
+      fsSyncState.connected = false;
+      fsSyncState.needsResume = true;
+      renderBackupButton();
+    });
+  }
+
+  function scheduleLocalSync() {
+    if (!fsSyncState.connected) return;
+    if (fsSyncState.syncTimer) clearTimeout(fsSyncState.syncTimer);
+    fsSyncState.syncTimer = setTimeout(writeToLocalFile, 3000);
+  }
+
+  function buildBackupPayload() {
+    return {
+      exportedAt: new Date().toISOString(),
+      tasks: Array.from(tasks.values()),
+      comments: Array.from(comments.values())
+    };
+  }
+
+  // ---- Google Drive sync ----
+
+  var driveState = { ready: false, tokenClient: null, accessToken: null, fileId: null, connected: false, lastSyncAt: null, syncTimer: null };
+  try { driveState.fileId = localStorage.getItem(DRIVE_FILE_ID_KEY) || DEFAULT_DRIVE_FILE_ID || null; } catch (e) { driveState.fileId = DEFAULT_DRIVE_FILE_ID || null; }
+
+  function waitForGoogleIdentity(attempts) {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      if (initGoogleDrive()) {
+        var wasConnected = false;
+        try { wasConnected = localStorage.getItem(DRIVE_CONNECTED_KEY) === "1"; } catch (e) {}
+        if (wasConnected) tryRestoreDriveSession();
+        renderBackupButton();
+      }
+      return;
+    }
+    if (attempts > 20) return;
+    setTimeout(function () { waitForGoogleIdentity(attempts + 1); }, 500);
+  }
+
+  function initGoogleDrive() {
+    try {
+      driveState.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "https://www.googleapis.com/auth/drive.file",
+        callback: function (resp) {
+          if (resp && resp.access_token) {
+            driveState.accessToken = resp.access_token;
+            driveState.connected = true;
+            try { localStorage.setItem(DRIVE_CONNECTED_KEY, "1"); } catch (e) {}
+            renderBackupButton();
+            ensureDriveFileAndSync();
+          }
+        },
+        error_callback: function () { driveState.connected = false; renderBackupButton(); }
+      });
+      driveState.ready = true;
+      return true;
+    } catch (e) {
+      console.warn("google identity init failed", e);
+      return false;
+    }
+  }
+
+  function connectGoogleDrive() {
+    if (!driveState.tokenClient) return;
+    driveState.tokenClient.requestAccessToken({ prompt: "consent" });
+  }
+
+  function tryRestoreDriveSession() {
+    if (!driveState.tokenClient) return;
+    try { driveState.tokenClient.requestAccessToken({ prompt: "" }); } catch (e) {}
+  }
+
+  function ensureDriveFileAndSync() {
+    if (driveState.fileId) { uploadToDrive(); return; }
+    var q = encodeURIComponent("name='" + DRIVE_BACKUP_FILENAME + "' and trashed=false");
+    fetch("https://www.googleapis.com/drive/v3/files?q=" + q + "&spaces=drive&fields=files(id,name)", {
+      headers: { Authorization: "Bearer " + driveState.accessToken }
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (data.files && data.files.length) {
+        driveState.fileId = data.files[0].id;
+        try { localStorage.setItem(DRIVE_FILE_ID_KEY, driveState.fileId); } catch (e) {}
+        uploadToDrive();
+      } else {
+        createDriveFile();
+      }
+    }).catch(function (err) { console.warn("drive search failed", err); });
+  }
+
+  function createDriveFile() {
+    var metadata = { name: DRIVE_BACKUP_FILENAME, mimeType: "application/json" };
+    var boundary = "-------daily-log-boundary";
+    var body =
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+      JSON.stringify(metadata) + "\r\n" +
+      "--" + boundary + "\r\n" +
+      "Content-Type: application/json\r\n\r\n" +
+      JSON.stringify(buildBackupPayload()) + "\r\n" +
+      "--" + boundary + "--";
+    fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + driveState.accessToken,
+        "Content-Type": "multipart/related; boundary=" + boundary
+      },
+      body: body
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      if (data.id) {
+        driveState.fileId = data.id;
+        try { localStorage.setItem(DRIVE_FILE_ID_KEY, data.id); } catch (e) {}
+        driveState.lastSyncAt = Date.now();
+        renderBackupButton();
+      }
+    }).catch(function (err) { console.warn("drive create failed", err); });
+  }
+
+  function uploadToDrive() {
+    if (!driveState.accessToken || !driveState.fileId) return;
+    fetch("https://www.googleapis.com/upload/drive/v3/files/" + driveState.fileId + "?uploadType=media", {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer " + driveState.accessToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(buildBackupPayload())
+    }).then(function (r) {
+      if (r.ok) { driveState.lastSyncAt = Date.now(); renderBackupButton(); }
+      else { console.warn("drive upload failed", r.status); }
+    }).catch(function (err) { console.warn("drive upload error", err); });
+  }
+
+  function scheduleDriveSync() {
+    if (!driveState.connected) return;
+    if (driveState.syncTimer) clearTimeout(driveState.syncTimer);
+    driveState.syncTimer = setTimeout(function () {
+      if (driveState.fileId) uploadToDrive(); else ensureDriveFileAndSync();
+    }, 4000);
   }
 
   function bindViewToggle() {
@@ -1038,7 +1593,7 @@
     cWrap.className = "comments";
     var label = document.createElement("div");
     label.className = "comments-label";
-    label.textContent = "JO's Comment";
+    label.textContent = "Comments";
     cWrap.appendChild(label);
     var list = commentsFor(task.id);
     list.forEach(function (c) {
@@ -1205,6 +1760,7 @@
     }
     row.appendChild(statusRow);
     row.appendChild(buildCommentBlock(task, names));
+    applyUnread(row, task);
     return row;
   }
 
@@ -1258,6 +1814,7 @@
     }
 
     row.appendChild(buildCommentBlock(task, names));
+    applyUnread(row, task);
     return row;
   }
 
@@ -1359,6 +1916,10 @@
     var task = tasks.get(taskId);
     if (!task) return;
     openModalTaskId = taskId;
+    markSeen(taskId);
+    document.querySelectorAll(".cal-note.is-unread").forEach(function (n) {
+      if (n.title === (task.title || "Untitled task")) n.classList.remove("is-unread");
+    });
     var root = document.getElementById("modalRoot");
     root.innerHTML = "";
     var overlay = document.createElement("div");
@@ -1382,15 +1943,15 @@
     root.appendChild(overlay);
   }
 
-  function buildCalNote(task) {
+  function buildCalNote(task, carried) {
     var cat = CAT_BY_ID[task.category] || CATEGORIES[0];
     var st = STATUS_BY_ID[task.status] || STATUS_BY_ID.not;
     var tile = document.createElement("div");
-    tile.className = "cal-note" + (task.status === "done" ? " done" : "");
+    tile.className = "cal-note" + (task.status === "done" ? " done" : "") + (carried ? " carried" : "");
     tile.style.background = cat.color;
     tile.title = task.title || "Untitled task";
-    tile.addEventListener("click", function () { openTaskModal(task.id); });
-
+        tile.addEventListener("click", function () { openTaskModal(task.id); });
+    if (isUnread(task)) tile.classList.add("is-unread");
     var dot = document.createElement("span");
     dot.className = "cal-note-dot";
     dot.style.background = st.color;
@@ -1459,20 +2020,26 @@
     for (var i = 0; i < 7; i++) {
       var d = new Date(targetMon.getFullYear(), targetMon.getMonth(), targetMon.getDate() + i);
       var key = dayKey(d);
+      var ds = dayStatus(key, d);
       var dayTasks = all
-        .filter(function (t) { return dayKey(new Date(t.createdAt || Date.now())) === key; })
+        .filter(function (t) {
+          var created = dayKey(new Date(t.createdAt || Date.now()));
+          if (key < created) return false;
+          if (t.status === "done") {
+            var closed = dayKey(new Date(t.closedAt || t.createdAt || Date.now()));
+            return key <= closed;
+          }
+          return key <= todayK || key === created;
+        })
+        .filter(function (t) {
+          // on a day off, only show what was actually logged that day (no carry-over clutter)
+          return !ds.off || dayKey(new Date(t.createdAt || Date.now())) === key;
+        })
         .sort(function (a, b) { return (a.createdAt || 0) - (b.createdAt || 0); });
       totalCount += dayTasks.length;
-      dayBuckets.push({ date: d, key: key, tasks: dayTasks });
+      dayBuckets.push({ date: d, key: key, tasks: dayTasks, status: ds });
     }
 
-    if (!totalCount) {
-      var empty = document.createElement("div");
-      empty.className = "weekly-empty";
-      empty.textContent = "Nothing logged " + (weekOffset === 0 ? "this week" : "for this week") + ".";
-      host.appendChild(empty);
-      return;
-    }
 
     var scrollWrap = document.createElement("div");
     scrollWrap.className = "calendar-scroll";
@@ -1481,7 +2048,7 @@
 
     dayBuckets.forEach(function (bucket) {
       var col = document.createElement("div");
-      col.className = "cal-col" + (bucket.key === todayK ? " today" : "");
+      col.className = "cal-col" + (bucket.key === todayK ? " today" : "") + (bucket.status.off ? " day-off" : "");
 
       var header = document.createElement("div");
       header.className = "cal-col-header";
@@ -1493,13 +2060,36 @@
       dnum.textContent = bucket.date.getDate();
       header.appendChild(dow);
       header.appendChild(dnum);
-      col.appendChild(header);
-
-      if (!bucket.tasks.length) {
-        col.appendChild(document.createElement("div"));
-      } else {
-        bucket.tasks.forEach(function (t) { col.appendChild(buildCalNote(t)); });
+            col.appendChild(header);
+      var ctl = document.createElement("div");
+      ctl.className = "cal-day-ctl";
+      if (bucket.status.off) {
+        var reasonEl = document.createElement("div");
+        reasonEl.className = "cal-off-reason";
+        reasonEl.textContent = bucket.status.reason;
+        ctl.appendChild(reasonEl);
       }
+      if (role.isOwner) {
+        var tgl = document.createElement("button");
+        tgl.type = "button";
+        tgl.className = "cal-off-btn";
+        tgl.textContent = bucket.status.off ? "Turn on" : "Turn off";
+        tgl.addEventListener("click", function () {
+          if (bucket.status.off) {
+            setDayOff(bucket.key, false, "", bucket.status.weekend);
+          } else {
+            var r = prompt("Reason for turning off " + bucket.date.toDateString() + "? (e.g. On leave, Public holiday)", "On leave");
+            if (r === null) return;
+            setDayOff(bucket.key, true, r.trim() || "Day off", bucket.status.weekend);
+          }
+        });
+        ctl.appendChild(tgl);
+      }
+      col.appendChild(ctl);
+      bucket.tasks.forEach(function (t) {
+        var carried = dayKey(new Date(t.createdAt || Date.now())) < bucket.key;
+        col.appendChild(buildCalNote(t, carried));
+      });
       grid.appendChild(col);
     });
 
@@ -1576,6 +2166,7 @@
     header.appendChild(dot);
     header.appendChild(name);
     header.appendChild(count);
+    header.appendChild(makeUnreadChip(cat.id, false));
     if (role.isOwner) {
       var addBtn = document.createElement("button");
       addBtn.className = "add-btn";
@@ -1617,6 +2208,7 @@
       label.textContent = "Completed (" + done.length + ")";
       toggleBtn.appendChild(chev);
       toggleBtn.appendChild(label);
+      toggleBtn.appendChild(makeUnreadChip(cat.id, true));
       toggleBtn.addEventListener("click", function () {
         ui.completedOpen[cat.id] = !ui.completedOpen[cat.id];
         render();
@@ -1686,8 +2278,8 @@
     var authorIds = Array.from(new Set(Array.from(comments.values()).map(function (c) { return c.authorId; }).filter(Boolean)));
     var names = await resolveNames(authorIds);
     if (myToken !== renderToken) return;
-    latestNames = names;
-
+        latestNames = names;
+    ensureSeen();
     var sections = document.getElementById("sections");
     var weeklyView = document.getElementById("weeklyView");
 
@@ -1708,6 +2300,7 @@
       if (tasks.has(openModalTaskId)) { openTaskModal(openModalTaskId); }
       else { closeModal(); }
     }
+    updateUnreadIndicators();
   }
 
   init();
